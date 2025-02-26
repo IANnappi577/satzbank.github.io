@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Satzbank</title>
+        <link rel="stylesheet" href="./index.css">
+        <script src="./main.js"></script>
+    </head>
+
+    <!-- add info box about how data is stored w/ a warning to the user -->
+
+    <body>
+        <br>
+        <div class="hintergrund" style="font-size: x-large;">
+            <span style="font-size:24pt;">🇩🇪 Satzbank</span>
+            <br>
+            <h2>Hallo zusammen! Ich habe dieses Website erstellt, um beliebte Sätze auflisten. Los geht's!</h2>
+        </div>
+        <br>
+        <div class="hintergrund">
+            <div class="untergruppe">
+                <h2>Verben:</h2>
+                <ul id="verben">
+                    <li><span class="wort">abfahren (sep.)</span>
+                        <ul>
+                            <li>Der Zug fährt am Hauptbahnof ab.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">abholen (sep.)</span>
+                        <ul>
+                            <li>Ich das Telefon abgeholen.</li>
+                            <li>Wir holen dich ab.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">abgeben (sep.)</span>
+                        <ul>
+                            <li>Ich muss meine Schlüssel abgeben.</li>
+                            <li>Er gibt seine Karte persönlich ab.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">bewegen</span>
+                        <ul>
+                            <li>Er wird der Blumentopf morgen bewegen.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">denken</span>
+                        <ul>
+                            <li>Ich denke oft an sie.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">einladen (sep.)</span>
+                        <ul>
+                            <li>Vierzig Gäste waren zur Party eingeladen.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">fühlen (reflx.)</span>
+                        <ul>
+                            <li>Ich fühle mich Glücklich.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">hinzufügen (sep.)</span>
+                        <ul>
+                            <li>Bitte mehr Kaffe hinzufügen.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">klingen</span>
+                        <ul>
+                            <li>Diese Musik klingt ganz schön.</li>
+                            <li>(Das) Klingt gut.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">machen</span>
+                        <ul>
+                            <li>Ich mache nur ein Witz!</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">öffnen</span>
+                        <ul>
+                            <li>Bitte öffnen Sie das Fenster.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">schauen</span>
+                        <ul>
+                            <li>Schau dir diese Blumen an.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">stattfinden (sep.)</span>
+                        <ul>
+                            <li>Das Treffen findet heute statt.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">vergessen</span>
+                        <ul>
+                            <li>Er vergisst oft seinen Schlüssel.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">vorbereiten (sep. reflx.)</span>
+                        <ul>
+                            <li>Er bereitet sich auf das Rennen vor.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">warten</span>
+                        <ul>
+                            <li>Bitte warten.</li>
+                            <li>Warten Sie, bis das Essen fertig ist.</li>
+                        </ul>
+                    </li>
+
+                    <!-- ////////////////////////////////////////////// -->
+                    <form onsubmit="verbenHinzufügen(event)">
+                        <li>Verben hinzufügen: <input type="text" name="verbenWortEingeben">
+                            <ul>
+                                <li>Satz: <input type="text" name="verbenSatzEingeben" required></li>
+                            </ul>
+                        </li>
+                    </form>
+                </ul>
+            </div>
+            <br>
+            <div class="untergruppe">
+                <h2>Nomen:</h2>
+                <ul id="nomen">
+                    <!-- die -->
+                    <div id="die">
+                        <li><span class="wort"><span class="die">die</span> Luft</span>
+                            <ul>
+                                <li>Lass die Luft rein.</li>
+                            </ul>
+                        </li>
+                    </div>
+
+                    <!-- der -->
+                    <div id="der">
+                        <li><span class="wort"><span class="der">der</span> Absender</span>
+                            <ul>
+                                <li>Schreib den Absender auf den Brief.</li>
+                            </ul>
+                        </li>
+                        <li><span class="wort"><span class="der">der</span> Brief</span>
+                            <ul>
+                                <li>Schicken Sie noch heute einen Brief.</li>
+                            </ul>
+                        </li>
+                        <li><span class="wort"><span class="der">der</span> Fels</span>
+                            <ul>
+                                <li>Gib mir den Fels auf dem Tisch.</li>
+                            </ul>
+                        </li>
+                    </div>
+
+                    <!-- das -->
+                    <div id="das">
+                        <li><span class="wort"><span class="das">das</span> Messer</span>
+                            <ul>
+                                <li>Er hat ein Messer!</li>
+                            </ul>
+                        </li>
+                    </div>
+
+                    <!-- ////////////////////////////////////////////// -->
+                    <li>
+                        <form onsubmit="nomenHinzufügen(event)">
+                            Nomen hinzufügen: 
+                            <select name="geschlecht">
+                                <option>die</option>
+                                <option>der</option>
+                                <option>das</option>
+                            </select>
+                            <input type="text" name="nomenWortEingeben">
+                            <ul>
+                                <li>Satz: <input type="text" name="nomenSatzEingeben" required></li>
+                            </ul>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <br>
+            <div class="untergruppe">
+                <h2>Adjektive:</h2>
+                <ul id="adjektive">
+                    <li><span class="wort">allein</span>
+                        <ul>
+                            <li>Er kommt allein.</li>
+                            <li>Ich war allein im Park.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">anstrengenden</span>
+                        <ul>
+                            <li>Er hat morgen einen anstrengenden Tag.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">beschäftigen</span>
+                        <ul>
+                            <li>Ich bin ein vielbeschäftigter Mensch.</li>
+                            <li>Ich bin immer beschäftigt.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">vollen</span>
+                        <ul>
+                            <li>Er hat morgen einen vollen Tag.</li>
+                        </ul>
+                    </li>
+                    <li><span class="wort">wütend</span>
+                        <ul>
+                            <li>Ich bin nicht wütend.</li>
+                        </ul>
+                    </li>
+
+                    <!-- ////////////////////////////////////////////// -->
+                    <form onsubmit="adjektiveHinzufügen(event)">
+                        <li>Adjektiv hinzufügen: <input type="text" name="verbenWortEingeben">
+                            <ul>
+                                <li>Satz: <input type="text" name="verbenSatzEingeben" required></li>
+                            </ul>
+                        </li>
+                    </form>
+                </ul>
+            </div>
+        </div>
+    </body>
+</html>
