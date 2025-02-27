@@ -15,10 +15,27 @@ JSON format in storage:
 // - display a banner that stays for 5 seconds that an item was added successfully
 // - set all textfields/forms to null string
 window.onload = function() {
-    // initialize wordlists
-    localStorage.setItem("verbWortliste", JSON.stringify({ "öffnen" : ["Bitte öffnen Sie das Fenster."] }));
-    localStorage.setItem("nomenWortliste", JSON.stringify({ "die Luft" : ["Lass die Luft rein."] }));
-    localStorage.setItem("adjektivWortliste", JSON.stringify({"vollen" : ["Er hat morgen einen vollen Tag."] }));
+    // initialize wordlists with defaults
+    localStorage.setItem("verbWortliste", JSON.stringify(
+        { "abfahren (sep.)" : ["Der Zug fährt am Hauptbahnof ab."],  
+          "abholen (sep.)" : ["Ich das Telefon abgeholen.", "Wir holen dich ab."]
+        }
+    ));
+    localStorage.setItem("nomenWortliste", JSON.stringify(
+        { "die Luft" : ["Lass die Luft rein."],
+          "der Absender" : ["Schreib den Absender auf den Brief."],
+          "das Messer" : ["Er hat ein Messer!"]
+        }
+    ));
+    localStorage.setItem("adjektivWortliste", JSON.stringify(
+        { "allein" : ["Er kommt allein.", "Ich war allein im Park."],
+          "anstrengenden" : ["Er hat morgen einen anstrengenden Tag."]
+        }
+    ));
+
+    refreshWordlist(0);
+    refreshWordlist(1);
+    refreshWordlist(2);
 }
 
 // option is 0 = verben, 1 = nomen, 2 = adjektive
@@ -160,26 +177,24 @@ function minimizeNewSentence(word) {
     return;
 }
 
-// make a clear function?
-
-function verbHinzufügen(event) {
-    event.preventDefault();
-
-    // Wortstring und Satz abrufen
-    let wortStr = document.getElementById("verbenWortEingeben");
-    let satz = document.getElementById("verbenSatzEingeben");
-
-    // temp convert to list for now
-    let sätze = [satz.value];
-
-    storeWord(wortStr.value, sätze, 0);
-
+function refreshWordlist(option) {
+    // refreshes the wordlist with the option specified;
+    // 0=verb, 1=noun, 2=adjective
     // get the wordlist
-    let wordlist = JSON.parse(localStorage.getItem("verbWortliste")) || {};
-
+    let wordlist;
+    let wordUL;
+    if(option == 0) {
+        wordlist = JSON.parse(localStorage.getItem("verbWortliste")) || {};
+        wordUL = document.getElementById("verben");
+    } else if (option == 1) {
+        wordlist = JSON.parse(localStorage.getItem("nomenWortliste")) || {};
+        wordUL = document.getElementById("nomen");
+    } else {
+        wordlist = JSON.parse(localStorage.getItem("adjektivWortliste")) || {};
+        wordUL = document.getElementById("adjektive");
+    }
     // wipe original data, then display added word
-    let verbUL = document.getElementById("verben");
-    verbUL.innerHTML = "";
+    wordUL.innerHTML = "";
 
     for(i=0; i<Object.keys(wordlist).length; i++) {
         const word = Object.keys(wordlist)[i];
@@ -187,9 +202,24 @@ function verbHinzufügen(event) {
         newitem.id = word;
         
         // create span and append it
-        const spanitem = document.createElement("span");
+        let spanitem = document.createElement("span");
         spanitem.classList.add("wort");
-        spanitem.textContent = word;
+        
+        // if this is a noun, also add its colored gender
+        if(option == 1) {
+            const genderNounList = word.split(" ");
+            console.log(genderNounList);
+            // create coloured span for die/der/das
+            let genderspan = document.createElement("span");
+            genderspan.textContent = genderNounList[0];
+            genderspan.classList.add(genderNounList[0]);
+            console.log(genderspan);
+            spanitem.appendChild(genderspan);
+            spanitem.appendChild(document.createTextNode(" " + genderNounList[1]));
+        } else {
+            spanitem.textContent = word;
+        }
+        
         newitem.appendChild(spanitem);
 
         // create list of UL items
@@ -209,20 +239,144 @@ function verbHinzufügen(event) {
                 plus.id = word + ".b";
                 sentenceLI.appendChild(plus);
             }
-
             newsentencelist.appendChild(sentenceLI);
         }
         newitem.appendChild(newsentencelist);
             
         // Append the new li as a child of ul
-        verbUL.appendChild(newitem);
+        wordUL.appendChild(newitem);
     }
+
+    // now redraw the add word forms:
+    if(option == 0) {
+        let form = document.createElement("form");
+        form.onsubmit = function() { verbHinzufügen(event); };
+        let inputLI = document.createElement("li");
+        inputLI.textContent = "Verben hinzufügen: "
+        // create all children within li new input word: input box, ul with sentence input
+        let inputBox = document.createElement("input");
+        inputBox.type = "text";
+        inputBox.id = "verbenWortEingeben";
+        inputBox.required = true;
+        inputLI.appendChild(inputBox);
+        let sentenceUL = document.createElement("ul");
+        let sentenceLI = document.createElement("li");
+        sentenceLI.textContent = "Satz: ";
+        let sentenceInputBox = document.createElement("input");
+        sentenceInputBox.type = "text";
+        sentenceInputBox.id = "verbenSatzEingeben";
+        sentenceInputBox.required = true;
+        sentenceLI.appendChild(sentenceInputBox);
+        sentenceUL.appendChild(sentenceLI);  
+        inputLI.appendChild(sentenceUL);
+        // create the button, then append everything (inputLI, button) to the form
+        let button = document.createElement("button");
+        button.type = "submit";
+        button.textContent = "hinzufügen";
+        form.appendChild(inputLI);
+        form.appendChild(button);
+
+        // now append the form to the end of the wordlist
+        wordUL.appendChild(form);
+       
+    } else if (option == 1) {
+        let form = document.createElement("form");
+        form.onsubmit = function() { nomenHinzufügen(event); };
+        let inputLI = document.createElement("li");
+        inputLI.textContent = "Nomen hinzufügen: "
+        // create all children within li new input word: gender selector, input box, ul with sentence input
+        let genderSelector = document.createElement("select");
+        // FIXME: update id --> name if needed for query selection
+        genderSelector.id = "geschlecht";
+        let die = document.createElement("option"); die.value = "die"; die.text = "die";
+        let der = document.createElement("option"); der.value = "der"; der.text = "der";
+        let das = document.createElement("option"); das.value = "das"; das.text = "das";
+        genderSelector.appendChild(die);
+        genderSelector.appendChild(der);
+        genderSelector.appendChild(das);
+        inputLI.appendChild(genderSelector);
+
+        let inputBox = document.createElement("input");
+        inputBox.type = "text";
+        inputBox.id = "nomenWortEingeben";
+        inputBox.required = true;
+        inputLI.appendChild(inputBox);
+        let sentenceUL = document.createElement("ul");
+        let sentenceLI = document.createElement("li");
+        sentenceLI.textContent = "Satz: ";
+        let sentenceInputBox = document.createElement("input");
+        sentenceInputBox.type = "text";
+        sentenceInputBox.id = "nomenSatzEingeben";
+        sentenceInputBox.required = true;
+        sentenceLI.appendChild(sentenceInputBox);
+        sentenceUL.appendChild(sentenceLI);  
+        inputLI.appendChild(sentenceUL);
+        // create the button, then append everything (inputLI, button) to the form
+        let button = document.createElement("button");
+        button.type = "submit";
+        button.textContent = "hinzufügen";
+        form.appendChild(inputLI);
+        form.appendChild(button);
+
+        // now append the form to the end of the wordlist
+        wordUL.appendChild(form);
+    } else {
+        let form = document.createElement("form");
+        form.onsubmit = function() { adjektivHinzufügen(event); };
+        let inputLI = document.createElement("li");
+        inputLI.textContent = "Adjektiv hinzufügen: "
+        // create all children within li new input word: input box, ul with sentence input
+        let inputBox = document.createElement("input");
+        inputBox.type = "text";
+        inputBox.id = "adjektiveWortEingeben";
+        inputBox.required = true;
+        inputLI.appendChild(inputBox);
+        let sentenceUL = document.createElement("ul");
+        let sentenceLI = document.createElement("li");
+        sentenceLI.textContent = "Satz: ";
+        let sentenceInputBox = document.createElement("input");
+        sentenceInputBox.type = "text";
+        sentenceInputBox.id = "adjektiveSatzEingeben";
+        sentenceInputBox.required = true;
+        sentenceLI.appendChild(sentenceInputBox);
+        sentenceUL.appendChild(sentenceLI);  
+        inputLI.appendChild(sentenceUL);
+        // create the button, then append everything (inputLI, button) to the form
+        let button = document.createElement("button");
+        button.type = "submit";
+        button.textContent = "hinzufügen";
+        form.appendChild(inputLI);
+        form.appendChild(button);
+
+        // now append the form to the end of the wordlist
+        wordUL.appendChild(form);
+    }
+    return;
+}
+
+// make a clear function?
+
+function verbHinzufügen(event) {
+    event.preventDefault();
+
+    // Wortstring und Satz abrufen
+    let wortStr = document.getElementById("verbenWortEingeben");
+    let satz = document.getElementById("verbenSatzEingeben");
+
+    // temp convert to list for now
+    let sätze = [satz.value];
+
+    storeWord(wortStr.value, sätze, 0);
+
+    // pass option=0 because its the verblist
+    refreshWordlist(0);
 
     wortStr.value = "";
     satz.value = "";    
 }
 
 function nomenHinzufügen() {
+    // TODO: make sure to put words in DB in the correct format "gender noun";
 }
 
 function adjektivHinzufügen() {
