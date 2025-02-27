@@ -9,13 +9,11 @@
     <!-- add info box about how data is stored w/ a warning to the user -->
 
     <body>
-        <br>
-        <div class="hintergrund" style="font-size: x-large;">
+        <div class="hintergrund" style="font-size: x-large; margin-top:20px; margin-bottom:10px;">
             <span style="font-size:24pt;">🇩🇪 Satzbank</span>
             <br>
-            <h2>Hallo zusammen! Ich habe dieses Website erstellt, um beliebte Sätze auflisten. Los geht's!</h2>
+            <h2>Hallo zusammen! Ich habe diese Website erstellt, um Ihre persönlichen Sätze aufzulisten.</h2>
         </div>
-        <br>
         <div class="hintergrund">
             <div class="untergruppe">
                 <h2>Verben:</h2>
@@ -106,12 +104,13 @@
                     </li>
 
                     <!-- ////////////////////////////////////////////// -->
-                    <form onsubmit="verbenHinzufügen(event)">
-                        <li>Verben hinzufügen: <input type="text" name="verbenWortEingeben">
+                    <form onsubmit="verbHinzufügen(event)">
+                        <li>Verben hinzufügen: <input type="text" name="verbenWortEingeben" id="verbenWortEingeben">
                             <ul>
-                                <li>Satz: <input type="text" name="verbenSatzEingeben" required></li>
+                                <li>Satz: <input type="text" name="verbenSatzEingeben" id="verbenSatzEingeben" required></li>
                             </ul>
                         </li>
+                        <button type="submit">hinzufügen</button>
                     </form>
                 </ul>
             </div>
@@ -165,10 +164,11 @@
                                 <option>der</option>
                                 <option>das</option>
                             </select>
-                            <input type="text" name="nomenWortEingeben">
+                            <input type="text" name="nomenWortEingeben" id="nomenWortEingeben" required>
                             <ul>
-                                <li>Satz: <input type="text" name="nomenSatzEingeben" required></li>
+                                <li>Satz: <input type="text" name="nomenSatzEingeben" id="nomenSatzEingeben" required></li>
                             </ul>
+                            <button type="submit">hinzufügen</button>
                         </form>
                     </li>
                 </ul>
@@ -204,13 +204,19 @@
                             <li>Ich bin nicht wütend.</li>
                         </ul>
                     </li>
+                    <li><span class="wort">wichtig</span>
+                        <ul>
+                            <li>Ich bin nicht wütend.</li>
+                        </ul>
+                    </li>
 
                     <!-- ////////////////////////////////////////////// -->
-                    <form onsubmit="adjektiveHinzufügen(event)">
-                        <li>Adjektiv hinzufügen: <input type="text" name="verbenWortEingeben">
+                    <form onsubmit="adjektivHinzufügen(event)">
+                        <li>Adjektiv hinzufügen: <input type="text" name="verbenWortEingeben" required>
                             <ul>
                                 <li>Satz: <input type="text" name="verbenSatzEingeben" required></li>
                             </ul>
+                            <button type="submit">hinzufügen</button>
                         </li>
                     </form>
                 </ul>
