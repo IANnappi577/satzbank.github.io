@@ -10,28 +10,45 @@ JSON format in storage:
         - adjektivWortliste: adjective list
 */
 
+let wipe = false;
+
 // TODO: 
 // - on window.onload, pull from the cached localstorage
+// - add a button to clear localstorage (localStorage.clear() with warnings) if users want to flush the cache
 // - display a banner that stays for 5 seconds that an item was added successfully
 // - set all textfields/forms to null string
 window.onload = function() {
-    // initialize wordlists with defaults
-    localStorage.setItem("verbWortliste", JSON.stringify(
-        { "abfahren (sep.)" : ["Der Zug fährt am Hauptbahnof ab."],  
-          "abholen (sep.)" : ["Ich das Telefon abgeholen.", "Wir holen dich ab."]
-        }
-    ));
-    localStorage.setItem("nomenWortliste", JSON.stringify(
-        { "die Luft" : ["Lass die Luft rein."],
-          "der Absender" : ["Schreib den Absender auf den Brief."],
-          "das Messer" : ["Er hat ein Messer!"]
-        }
-    ));
-    localStorage.setItem("adjektivWortliste", JSON.stringify(
-        { "allein" : ["Er kommt allein.", "Ich war allein im Park."],
-          "anstrengenden" : ["Er hat morgen einen anstrengenden Tag."]
-        }
-    ));
+
+    if(wipe) {localStorage.clear();}
+
+    // pull stored wordlists
+    let verblist = JSON.parse(localStorage.getItem("verbWortliste")) || {};
+    let nounlist = JSON.parse(localStorage.getItem("nomenWortliste")) || {};
+    let adjlist = JSON.parse(localStorage.getItem("adjektivWortliste")) || {};
+
+    // load defaults if there is nothing stored
+    if (Object.keys(verblist) == 0) {
+        localStorage.setItem("verbWortliste", JSON.stringify(
+            {  "abholen (sep.)" : ["Ich das Telefon abgeholen.", "Wir holen dich ab."],
+               "fühlen (reflx.)" : ["Ich fühle mich Glücklich."]
+            }
+        ));
+    }
+    if (Object.keys(nounlist) == 0) {
+        localStorage.setItem("nomenWortliste", JSON.stringify(
+            { "die Luft" : ["Lass die Luft rein."],
+              "der Absender" : ["Schreib den Absender auf den Brief."],
+              "das Messer" : ["Er hat ein Messer!"]
+            }
+        ));
+    }
+    if (Object.keys(adjlist) == 0) {
+        localStorage.setItem("adjektivWortliste", JSON.stringify(
+            { "allein" : ["Er kommt allein.", "Ich war allein im Park."],
+              "anstrengenden" : ["Er hat morgen einen anstrengenden Tag."]
+            }
+        ));
+    }
 
     refreshWordlist(0);
     refreshWordlist(1);
@@ -76,7 +93,7 @@ function storeWord(word, sentences, option) {
         localStorage.setItem("verbWortliste", JSON.stringify(ordered));
     } else if (option == 1) {
         localStorage.setItem("nomenWortliste", JSON.stringify(ordered));
-    } else if (option == 2) {
+    } else {
         localStorage.setItem("adjektivWortliste", JSON.stringify(ordered));
     }
 
@@ -98,28 +115,30 @@ function storeSentence(word, sentence, option) {
         // get verb wordlist, append new sentence, then save
         wordlist = JSON.parse(localStorage.getItem("verbWortliste")) || {};
         wordlist[word].push(sentence);
-        localStorage.setItem("verbWortliste", JSON.stringify(ordered));
+        console.log(wordlist);
+        localStorage.setItem("verbWortliste", JSON.stringify(wordlist));
     } else if (option == 1) {
         // get noun wordlist, append new sentence, then save
         wordlist = JSON.parse(localStorage.getItem("nomenWortliste")) || {};
         wordlist[word].push(sentence);
-        localStorage.setItem("nomenWortliste", JSON.stringify(ordered));
+        console.log(wordlist);
+        localStorage.setItem("nomenWortliste", JSON.stringify(wordlist));
     } else if (option == 2) {
         // get adjective wordlist, append new sentence, then save
         wordlist = JSON.parse(localStorage.getItem("adjektivWortliste")) || {};
         wordlist[word].push(sentence);
-        localStorage.setItem("adjektivWortliste", JSON.stringify(ordered));
+        console.log(wordlist);
+        localStorage.setItem("adjektivWortliste", JSON.stringify(wordlist));
     }
     return;
 }
 
-function expandNewSentence(word) {
+function expandNewSentence(word, option) {
     // creates the form for adding new sentences per word
     let wordBox = document.getElementById(word).children[1];
-    // console.log(document.getElementById(word).children[1]);
 
     const form = document.createElement("form");
-    form.onsubmit = satzHinzufügen(event);
+    form.onsubmit = function() { satzHinzufügen(event, word, option); };
     form.id = word + ".f";  // create unique ID for the form to find it
 
     /* HTML structure
@@ -135,7 +154,7 @@ function expandNewSentence(word) {
     const inputLI = document.createElement("li");
     const input = document.createElement("input");
     input.type = "text";
-    input.id = word;
+    input.id = word + ".i";
     input.required = true;
     inputLI.appendChild(input);
     const button = document.createElement("button");
@@ -208,12 +227,10 @@ function refreshWordlist(option) {
         // if this is a noun, also add its colored gender
         if(option == 1) {
             const genderNounList = word.split(" ");
-            console.log(genderNounList);
             // create coloured span for die/der/das
             let genderspan = document.createElement("span");
             genderspan.textContent = genderNounList[0];
             genderspan.classList.add(genderNounList[0]);
-            console.log(genderspan);
             spanitem.appendChild(genderspan);
             spanitem.appendChild(document.createTextNode(" " + genderNounList[1]));
         } else {
@@ -235,7 +252,7 @@ function refreshWordlist(option) {
                 const plus = document.createElement("button");
                 plus.textContent = "+";
                 plus.classList.add("plus");
-                plus.addEventListener("click", () => expandNewSentence(word));
+                plus.addEventListener("click", () => expandNewSentence(word, option));
                 plus.id = word + ".b";
                 sentenceLI.appendChild(plus);
             }
@@ -286,7 +303,6 @@ function refreshWordlist(option) {
         inputLI.textContent = "Nomen hinzufügen: "
         // create all children within li new input word: gender selector, input box, ul with sentence input
         let genderSelector = document.createElement("select");
-        // FIXME: update id --> name if needed for query selection
         genderSelector.id = "geschlecht";
         let die = document.createElement("option"); die.value = "die"; die.text = "die";
         let der = document.createElement("option"); der.value = "der"; der.text = "der";
@@ -358,15 +374,11 @@ function refreshWordlist(option) {
 
 function verbHinzufügen(event) {
     event.preventDefault();
-
-    // Wortstring und Satz abrufen
     let wortStr = document.getElementById("verbenWortEingeben");
     let satz = document.getElementById("verbenSatzEingeben");
 
-    // temp convert to list for now
-    let sätze = [satz.value];
-
-    storeWord(wortStr.value, sätze, 0);
+    // convert to list and store
+    storeWord(wortStr.value, [satz.value], 0);
 
     // pass option=0 because its the verblist
     refreshWordlist(0);
@@ -375,16 +387,53 @@ function verbHinzufügen(event) {
     satz.value = "";    
 }
 
-function nomenHinzufügen() {
+function nomenHinzufügen(event) {
     // TODO: make sure to put words in DB in the correct format "gender noun";
+    event.preventDefault();
+    let wortStr = document.getElementById("nomenWortEingeben");
+    let geschlecht = document.getElementById("geschlecht");
+    let satz = document.getElementById("nomenSatzEingeben");
+
+    // convert to list and store
+    storeWord(geschlecht.value + " " + wortStr.value, [satz.value], 1);
+    
+    // pass option=1 because its the nounlist
+    refreshWordlist(1);
+
+    wortStr.value = "";
+    satz.value = "";  
 }
 
-function adjektivHinzufügen() {
+function adjektivHinzufügen(event) {
+    event.preventDefault();
+    let wortStr = document.getElementById("adjektiveWortEingeben");
+    let satz = document.getElementById("adjektiveSatzEingeben");
+
+    // convert to list and store
+    storeWord(wortStr.value, [satz.value], 2);
+
+    // pass option=2 because its the adjectivelist
+    refreshWordlist(2);
+
+    wortStr.value = "";
+    satz.value = "";  
 }
 
-function satzHinzufügen(event) {
+function satzHinzufügen(event, word, option) {
     // add a sentence to the current word
     event.preventDefault();
 
-    
+    // the id is word + .f:
+    let satz = document.getElementById(word + ".i");
+    console.log(satz);
+    console.log(word);
+    console.log(option);
+
+    // convert to list and store
+    storeSentence(word, satz.value, option);
+
+    // pass option=2 because its the adjectivelist
+    refreshWordlist(option);
+
+    satz.value = "";
 }
