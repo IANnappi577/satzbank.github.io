@@ -67,3 +67,17 @@ body {
 .plus:disabled:hover {
     background-color: rgb(202, 208, 227);
 }
+
+.entfernen {
+    border-radius:10px;
+    border: 2px solid rgb(20,20,20);
+    background-color: rgb(231, 114, 114);
+}
+
+.entfernen:hover {
+    background-color: rgba(231, 114, 114, 0.5);
+}
+
+.entfernen:disabled:hover {
+    background-color: rgb(231, 114, 114);
+}

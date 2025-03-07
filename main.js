@@ -13,10 +13,10 @@ JSON format in storage:
 let wipe = false;
 
 // TODO: 
-// - on window.onload, pull from the cached localstorage
 // - add a button to clear localstorage (localStorage.clear() with warnings) if users want to flush the cache
 // - display a banner that stays for 5 seconds that an item was added successfully
 // - set all textfields/forms to null string
+// - create edit button to remove words/sentences
 window.onload = function() {
 
     if(wipe) {localStorage.clear();}
@@ -100,11 +100,78 @@ function storeWord(word, sentences, option) {
     return;
 }
 
-// TODO: add types of deletes w option
-function removeWord(word) {
-    // remove word from "database"
-    let wordlist = JSON.parse(localStorage.getItem("wordlist")) || {};
+function removeWord(word, option) {
+
+    // display an alert to the user to make sure they want to delete
+    if(!confirm("Wollen Sie wirklich dieses Wort entfernen?")) { return; }
+
+    // based on the word and option, remove the word from the DB + all sentences
+    let wordlist;
+
+    if (option == 0) {
+        // get verb wordlist
+        wordlist = JSON.parse(localStorage.getItem("verbWortliste")) || {};
+    } else if (option == 1) {
+        // get noun wordlist
+        wordlist = JSON.parse(localStorage.getItem("nomenWortliste")) || {};
+    } else if (option == 2) {
+        // get adjective wordlist
+        wordlist = JSON.parse(localStorage.getItem("adjektivWortliste")) || {};
+    }
+
+    // delete word
     delete wordlist[word];
+
+    // re-write back to the localstorage
+    if (option == 0) {
+        localStorage.setItem("verbWortliste", JSON.stringify(wordlist));
+    } else if (option == 1) {
+        localStorage.setItem("nomenWortliste", JSON.stringify(wordlist));
+    } else {
+        localStorage.setItem("adjektivWortliste", JSON.stringify(wordlist));
+    }
+
+    // redraw wordlist
+    refreshWordlist(option);
+    return;
+}
+
+function removeSentence(word, sentence, option) {
+    // remove the current sentence from the word
+
+    // display an alert to the user to make sure they want to delete
+    if(!confirm("Wollen Sie wirklich dieses Satz entfernen?")) { return; }
+
+    // based on the word and option, remove the word from the DB + all sentences
+    let wordlist;
+
+    if (option == 0) {
+        // get verb wordlist
+        wordlist = JSON.parse(localStorage.getItem("verbWortliste")) || {};
+    } else if (option == 1) {
+        // get noun wordlist
+        wordlist = JSON.parse(localStorage.getItem("nomenWortliste")) || {};
+    } else if (option == 2) {
+        // get adjective wordlist
+        wordlist = JSON.parse(localStorage.getItem("adjektivWortliste")) || {};
+    }
+
+    console.log(sentence);
+
+    // remove the specific sentence from the wordlist
+    removeItem(wordlist[word], sentence);
+
+    // re-write back to the localstorage
+    if (option == 0) {
+        localStorage.setItem("verbWortliste", JSON.stringify(wordlist));
+    } else if (option == 1) {
+        localStorage.setItem("nomenWortliste", JSON.stringify(wordlist));
+    } else {
+        localStorage.setItem("adjektivWortliste", JSON.stringify(wordlist));
+    }
+
+    // redraw wordlist
+    refreshWordlist(option);
     return;
 }
 
@@ -135,20 +202,11 @@ function storeSentence(word, sentence, option) {
 
 function expandNewSentence(word, option) {
     // creates the form for adding new sentences per word
-    let wordBox = document.getElementById(word).children[1];
+    let wordBox = document.getElementById(word).children[2];
 
     const form = document.createElement("form");
     form.onsubmit = function() { satzHinzufügen(event, word, option); };
     form.id = word + ".f";  // create unique ID for the form to find it
-
-    /* HTML structure
-    ul
-        form -- id=word.f
-            li
-            button -- id=word.b
-        /form
-    /ul
-    */
 
     // create new LI with input box and button for the form
     const inputLI = document.createElement("li");
@@ -185,7 +243,7 @@ function expandNewSentence(word, option) {
 
 function minimizeNewSentence(word) {
     // remove the form list item and get rid of it
-    let wordBox = document.getElementById(word).children[1];
+    let wordBox = document.getElementById(word).children[2];
     let form = document.getElementById(word + ".f");
     wordBox.removeChild(form);
 
@@ -232,12 +290,19 @@ function refreshWordlist(option) {
             genderspan.textContent = genderNounList[0];
             genderspan.classList.add(genderNounList[0]);
             spanitem.appendChild(genderspan);
-            spanitem.appendChild(document.createTextNode(" " + genderNounList[1]));
+            spanitem.appendChild(document.createTextNode(" " + genderNounList[1] + " "));
         } else {
-            spanitem.textContent = word;
+            spanitem.textContent = word + " ";
         }
-        
         newitem.appendChild(spanitem);
+
+        // TODO: activate edit button to add these, not always displaying
+        // add remove button after word
+        const rem = document.createElement("button");
+        rem.textContent = "x";
+        rem.classList.add("entfernen");
+        rem.addEventListener("click", () => removeWord(word, option));
+        newitem.appendChild(rem);
 
         // create list of UL items
         const newsentencelist = document.createElement("ul");
@@ -256,6 +321,17 @@ function refreshWordlist(option) {
                 plus.id = word + ".b";
                 sentenceLI.appendChild(plus);
             }
+
+            // append a remove sentence button
+            // TODO: back this part of the edit menu, and not inline
+            const rem_s = document.createElement("button");
+            rem_s.textContent = "x";
+            rem_s.classList.add("entfernen");
+            const idx = wordlist[word][j];
+            rem_s.addEventListener("click", () => removeSentence(word, idx, option));
+            sentenceLI.appendChild(document.createTextNode(" "));
+            sentenceLI.appendChild(rem_s);
+
             newsentencelist.appendChild(sentenceLI);
         }
         newitem.appendChild(newsentencelist);
@@ -423,7 +499,7 @@ function satzHinzufügen(event, word, option) {
     // add a sentence to the current word
     event.preventDefault();
 
-    // the id is word + .f:
+    // the id is word + .i:
     let satz = document.getElementById(word + ".i");
     console.log(satz);
     console.log(word);
@@ -436,4 +512,16 @@ function satzHinzufügen(event, word, option) {
     refreshWordlist(option);
 
     satz.value = "";
+}
+
+
+// ---- HELPER FUNCTIONS ----
+
+// remove a known item from an array by name or value
+function removeItem(array, itemToRemove) {
+    const index = array.indexOf(itemToRemove);
+    if (index !== -1) {
+        array.splice(index, 1);
+    }
+    console.log(array);
 }
