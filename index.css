@@ -59,11 +59,9 @@ body {
     border: 2px solid rgb(20,20,20);
     background-color: rgb(202, 208, 227);
 }
-
 .plus:hover {
     background-color: rgba(202, 208, 227, 0.5);
 }
-
 .plus:disabled:hover {
     background-color: rgb(202, 208, 227);
 }
@@ -73,11 +71,24 @@ body {
     border: 2px solid rgb(20,20,20);
     background-color: rgb(231, 114, 114);
 }
-
 .entfernen:hover {
     background-color: rgba(231, 114, 114, 0.5);
 }
-
 .entfernen:disabled:hover {
     background-color: rgb(231, 114, 114);
+}
+
+.bearbeiten {
+    border-radius:10px;
+    border: 2px solid rgb(20,20,20);
+    background-color: rgb(202, 208, 227);
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    padding:4px;
+    font-size:11pt;
+}
+.bearbeiten:hover {
+    background-color: rgba(202, 208, 227, 0.5);
+}
+.bearbeiten:disabled:hover {
+    background-color: rgb(202, 208, 227);
 }

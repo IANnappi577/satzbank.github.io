@@ -12,11 +12,14 @@ JSON format in storage:
 
 let wipe = false;
 
+const child_number = 3;
+
 // TODO: 
 // - add a button to clear localstorage (localStorage.clear() with warnings) if users want to flush the cache
 // - display a banner that stays for 5 seconds that an item was added successfully
 // - set all textfields/forms to null string
 // - create edit button to remove words/sentences
+// - allow users to edit text that exists
 window.onload = function() {
 
     if(wipe) {localStorage.clear();}
@@ -136,6 +139,31 @@ function removeWord(word, option) {
     return;
 }
 
+function storeSentence(word, sentence, option) {
+    let wordlist;
+
+    if (option == 0) {
+        // get verb wordlist, append new sentence, then save
+        wordlist = JSON.parse(localStorage.getItem("verbWortliste")) || {};
+        wordlist[word].push(sentence);
+        console.log(wordlist);
+        localStorage.setItem("verbWortliste", JSON.stringify(wordlist));
+    } else if (option == 1) {
+        // get noun wordlist, append new sentence, then save
+        wordlist = JSON.parse(localStorage.getItem("nomenWortliste")) || {};
+        wordlist[word].push(sentence);
+        console.log(wordlist);
+        localStorage.setItem("nomenWortliste", JSON.stringify(wordlist));
+    } else if (option == 2) {
+        // get adjective wordlist, append new sentence, then save
+        wordlist = JSON.parse(localStorage.getItem("adjektivWortliste")) || {};
+        wordlist[word].push(sentence);
+        console.log(wordlist);
+        localStorage.setItem("adjektivWortliste", JSON.stringify(wordlist));
+    }
+    return;
+}
+
 function removeSentence(word, sentence, option) {
     // remove the current sentence from the word
 
@@ -175,34 +203,9 @@ function removeSentence(word, sentence, option) {
     return;
 }
 
-function storeSentence(word, sentence, option) {
-    let wordlist;
-
-    if (option == 0) {
-        // get verb wordlist, append new sentence, then save
-        wordlist = JSON.parse(localStorage.getItem("verbWortliste")) || {};
-        wordlist[word].push(sentence);
-        console.log(wordlist);
-        localStorage.setItem("verbWortliste", JSON.stringify(wordlist));
-    } else if (option == 1) {
-        // get noun wordlist, append new sentence, then save
-        wordlist = JSON.parse(localStorage.getItem("nomenWortliste")) || {};
-        wordlist[word].push(sentence);
-        console.log(wordlist);
-        localStorage.setItem("nomenWortliste", JSON.stringify(wordlist));
-    } else if (option == 2) {
-        // get adjective wordlist, append new sentence, then save
-        wordlist = JSON.parse(localStorage.getItem("adjektivWortliste")) || {};
-        wordlist[word].push(sentence);
-        console.log(wordlist);
-        localStorage.setItem("adjektivWortliste", JSON.stringify(wordlist));
-    }
-    return;
-}
-
 function expandNewSentence(word, option) {
     // creates the form for adding new sentences per word
-    let wordBox = document.getElementById(word).children[2];
+    let wordBox = document.getElementById(word).children[child_number];
 
     const form = document.createElement("form");
     form.onsubmit = function() { satzHinzufügen(event, word, option); };
@@ -243,7 +246,7 @@ function expandNewSentence(word, option) {
 
 function minimizeNewSentence(word) {
     // remove the form list item and get rid of it
-    let wordBox = document.getElementById(word).children[2];
+    let wordBox = document.getElementById(word).children[child_number];
     let form = document.getElementById(word + ".f");
     wordBox.removeChild(form);
 
@@ -251,6 +254,37 @@ function minimizeNewSentence(word) {
     let addButton = document.getElementById(word + ".b");
     addButton.disabled = false;
 
+    return;
+}
+
+function showEditPane(option) {
+    // reveal the buttons for editing the list -- removing, editing text
+    // TODO: editing text
+    // grab all objects with the edit id
+    let buttons = document.querySelectorAll("." + "edit" + option);
+    buttons.forEach(function(button) {
+        button.style.visibility = "visible";
+    });
+
+    // change the edit button to close the edit pane
+    let edit_b = document.getElementById(option + ".e");
+    edit_b.textContent = "Fertig";
+    edit_b.addEventListener("click", () => hideEditPane(option));
+    return;
+}
+
+function hideEditPane(option) {
+    // hide the buttons for editing the list
+    // grab all objects with the edit id
+    let buttons = document.querySelectorAll("." + "edit" + option);
+    buttons.forEach(function(button) {
+        button.style.visibility = "hidden";
+    });
+    
+    // change the edit button back to its original form
+    let edit_b = document.getElementById(option + ".e");
+    edit_b.textContent = "Liste bearbeiten";
+    edit_b.addEventListener("click", () => showEditPane(option));
     return;
 }
 
@@ -296,12 +330,23 @@ function refreshWordlist(option) {
         }
         newitem.appendChild(spanitem);
 
-        // TODO: activate edit button to add these, not always displaying
-        // add remove button after word
+        // add edit and remove buttons after word
+        // edit button
+        const edit = document.createElement("button");
+        edit.textContent = "✎";
+        edit.classList.add("bearbeiten");
+        edit.addEventListener("click", () => editWord(word, option));
+        edit.classList.add("edit" + option);
+        edit.style.visibility = "hidden";
+        edit.style.marginRight = "5px";
+        newitem.appendChild(edit);
+        // remove button
         const rem = document.createElement("button");
         rem.textContent = "x";
         rem.classList.add("entfernen");
         rem.addEventListener("click", () => removeWord(word, option));
+        rem.classList.add("edit" + option);
+        rem.style.visibility = "hidden";
         newitem.appendChild(rem);
 
         // create list of UL items
@@ -322,13 +367,25 @@ function refreshWordlist(option) {
                 sentenceLI.appendChild(plus);
             }
 
-            // append a remove sentence button
-            // TODO: back this part of the edit menu, and not inline
+            // append an edit and remove sentence button
+            // edit button
+            const edit_s = document.createElement("button");
+            edit_s.textContent = "✎";
+            edit_s.classList.add("bearbeiten");
+            edit_s.addEventListener("click", () => editSentence(word, option));
+            edit_s.classList.add("edit" + option);
+            edit_s.style.visibility = "hidden";
+            edit_s.style.marginRight = "5px";
+            edit_s.style.marginLeft = "5px";
+            sentenceLI.appendChild(edit_s);
+            // remove button
             const rem_s = document.createElement("button");
             rem_s.textContent = "x";
             rem_s.classList.add("entfernen");
             const idx = wordlist[word][j];
             rem_s.addEventListener("click", () => removeSentence(word, idx, option));
+            rem_s.classList.add("edit" + option);
+            rem_s.style.visibility = "hidden";
             sentenceLI.appendChild(document.createTextNode(" "));
             sentenceLI.appendChild(rem_s);
 
@@ -464,7 +521,6 @@ function verbHinzufügen(event) {
 }
 
 function nomenHinzufügen(event) {
-    // TODO: make sure to put words in DB in the correct format "gender noun";
     event.preventDefault();
     let wortStr = document.getElementById("nomenWortEingeben");
     let geschlecht = document.getElementById("geschlecht");
