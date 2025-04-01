@@ -29,28 +29,34 @@ window.onload = function() {
     let nounlist = JSON.parse(localStorage.getItem("nomenWortliste")) || {};
     let adjlist = JSON.parse(localStorage.getItem("adjektivWortliste")) || {};
 
-    // load defaults if there is nothing stored
+    // load defaults if there is nothing stored, and set a starting number of words the user has learned:
     if (Object.keys(verblist) == 0) {
         localStorage.setItem("verbWortliste", JSON.stringify(
-            {  "abholen (sep.)" : ["Ich das Telefon abgeholen.", "Wir holen dich ab."],
-               "fühlen (reflx.)" : ["Ich fühle mich Glücklich."]
+            {
+              "haben" : ["Ich habe Hunger."],
+              "machen" : ["Wir machen kein Sport.", "Was machst du?"]
             }
         ));
+        localStorage.setItem("gs_v", 2);
     }
     if (Object.keys(nounlist) == 0) {
         localStorage.setItem("nomenWortliste", JSON.stringify(
-            { "die Luft" : ["Lass die Luft rein."],
-              "der Absender" : ["Schreib den Absender auf den Brief."],
-              "das Messer" : ["Er hat ein Messer!"]
+            {
+              "das Baby" : ["Legen Sie das Baby auf den Wickeltisch."],
+              "der Mann" : ["Der Mann hat einen vollen Bart."],
+              "die Frau" : ["Die Frau sieht in ihrem Sommerkleid wunderschön aus."]
             }
         ));
+        localStorage.setItem("gs_n", 3);
     }
     if (Object.keys(adjlist) == 0) {
         localStorage.setItem("adjektivWortliste", JSON.stringify(
-            { "allein" : ["Er kommt allein.", "Ich war allein im Park."],
-              "anstrengenden" : ["Er hat morgen einen anstrengenden Tag."]
+            {
+              "früh" : ["Er zu früh angekommen."],
+              "spät" : ["Wir kommen zu spät zu unserem Termin!"]
             }
         ));
+        localStorage.setItem("gs_a", 2);
     }
 
     refreshWordlist(0);
@@ -91,13 +97,16 @@ function storeWord(word, sentences, option) {
         {}
     );
 
-    // Save updated list back to local storage
+    // Save updated list back to local storage, and increase the words learned
     if (option == 0) {
         localStorage.setItem("verbWortliste", JSON.stringify(ordered));
+        localStorage.setItem( "gs_v", parseInt(localStorage.getItem("gs_v"))+1 );
     } else if (option == 1) {
         localStorage.setItem("nomenWortliste", JSON.stringify(ordered));
+        localStorage.setItem( "gs_n", parseInt(localStorage.getItem("gs_n"))+1 );
     } else {
         localStorage.setItem("adjektivWortliste", JSON.stringify(ordered));
+        localStorage.setItem( "gs_a", parseInt(localStorage.getItem("gs_a"))+1 );
     }
 
     return;
@@ -125,13 +134,16 @@ function removeWord(word, option) {
     // delete word
     delete wordlist[word];
 
-    // re-write back to the localstorage
+    // re-write back to the localstorage, and decrease the words learned
     if (option == 0) {
         localStorage.setItem("verbWortliste", JSON.stringify(wordlist));
+        localStorage.setItem( "gs_v", parseInt(localStorage.getItem("gs_v"))-1 );
     } else if (option == 1) {
         localStorage.setItem("nomenWortliste", JSON.stringify(wordlist));
+        localStorage.setItem( "gs_n", parseInt(localStorage.getItem("gs_n"))-1 );
     } else {
         localStorage.setItem("adjektivWortliste", JSON.stringify(wordlist));
+        localStorage.setItem( "gs_a", parseInt(localStorage.getItem("gs_a"))-1 );
     }
 
     // redraw wordlist
@@ -221,6 +233,7 @@ function expandNewSentence(word, option) {
     const button = document.createElement("button");
     button.type = "submit";
     button.textContent = "hinzufügen";
+    button.classList.add("bearbeiten");
     inputLI.appendChild(button);
 
     // create a minus button to minimize items
@@ -291,20 +304,36 @@ function hideEditPane(option) {
 function refreshWordlist(option) {
     // refreshes the wordlist with the option specified;
     // 0=verb, 1=noun, 2=adjective
-    // get the wordlist
+
+    // get the wordlist and number of words learned + box for number display
     let wordlist;
     let wordUL;
+    let number_words;
+    let number_box;
     if(option == 0) {
         wordlist = JSON.parse(localStorage.getItem("verbWortliste")) || {};
         wordUL = document.getElementById("verben");
+
+        number_words = localStorage.getItem("gs_v");
+        number_box = document.getElementById("gs_v");
     } else if (option == 1) {
         wordlist = JSON.parse(localStorage.getItem("nomenWortliste")) || {};
         wordUL = document.getElementById("nomen");
+
+        number_words = localStorage.getItem("gs_n");
+        number_box = document.getElementById("gs_n");
     } else {
         wordlist = JSON.parse(localStorage.getItem("adjektivWortliste")) || {};
         wordUL = document.getElementById("adjektive");
+
+        number_words = localStorage.getItem("gs_a");
+        number_box = document.getElementById("gs_a");
     }
-    // wipe original data, then display added word
+
+    // update number of words:
+    number_box.innerHTML = number_words.toString();
+
+    // wipe original data of wordlist box, then display added word
     wordUL.innerHTML = "";
 
     for(i=0; i<Object.keys(wordlist).length; i++) {
@@ -423,6 +452,7 @@ function refreshWordlist(option) {
         let button = document.createElement("button");
         button.type = "submit";
         button.textContent = "hinzufügen";
+        button.classList.add("bearbeiten");
         form.appendChild(inputLI);
         form.appendChild(button);
 
@@ -464,6 +494,7 @@ function refreshWordlist(option) {
         let button = document.createElement("button");
         button.type = "submit";
         button.textContent = "hinzufügen";
+        button.classList.add("bearbeiten");
         form.appendChild(inputLI);
         form.appendChild(button);
 
@@ -494,6 +525,7 @@ function refreshWordlist(option) {
         let button = document.createElement("button");
         button.type = "submit";
         button.textContent = "hinzufügen";
+        button.classList.add("bearbeiten");
         form.appendChild(inputLI);
         form.appendChild(button);
 
