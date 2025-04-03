@@ -2,6 +2,7 @@
     --hintergrund: rgb(182, 188, 207);
     --karte: rgb(139, 144, 161);
     --untergruppe: rgb(162, 168, 187);
+    --credits: rgb(62, 68, 87);
 }
 
 body {
@@ -91,4 +92,53 @@ body {
 }
 .bearbeiten:disabled:hover {
     background-color: rgb(202, 208, 227);
+}
+
+.credits {
+    color:black;
+    text-decoration:none;
+    font-size: 12pt;
+}
+
+.credits:hover {
+    color: var(--credits);
+    text-decoration: underline;
+}
+
+.archiv {
+    display: inline-block;
+    border-radius:10px;
+    border: 2px solid rgb(20,20,20);
+    background-color: rgb(62, 68, 87);
+    color: white;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    text-align: center;
+    padding:4px;
+    font-size:11pt;
+    transition: all 0.5s;
+    margin-top:5px;
+}
+  
+.archiv span {
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+  
+.archiv span:after {
+    content: '\00bb';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -20px;
+    transition: 0.5s;
+}
+  
+.archiv:hover span {
+    padding-right: 25px;
+}
+  
+.archiv:hover span:after {
+    opacity: 1;
+    right: 0;
 }

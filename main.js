@@ -52,7 +52,7 @@ window.onload = function() {
     if (Object.keys(adjlist) == 0) {
         localStorage.setItem("adjektivWortliste", JSON.stringify(
             {
-              "früh" : ["Er zu früh angekommen."],
+              "früh" : ["Er ist zu früh angekommen."],
               "spät" : ["Wir kommen zu spät zu unserem Termin!"]
             }
         ));
